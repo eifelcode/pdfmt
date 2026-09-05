@@ -1,0 +1,111 @@
+#######################################################################################################################
+# Asserts that the given program is installed. Terminates the script with RC=1 if the assertion fails.
+#
+# Usage:
+#   assert_installed "tar"
+#   assert_installed "tar" "tar is not installed"
+#
+# Arguments:
+#   $1: Name of the program
+#   $2: (optional) Custom assertion failure message
+# Outputs:
+#   Outputs a message to STDERR if the assertion fails
+# Returns:
+#   0 on success, exits with RC=1 on failure
+#######################################################################################################################
+function assert_installed()
+{
+    local -r program="${1:-}"
+    local -r message="${2:-Could not find program "$program" in "\$PATH", or it is not executable}"
+    if ! command -v "$program" >/dev/null 2>&1; then
+        log_error "${message}"
+        exit 1
+    fi
+}
+
+#######################################################################################################################
+# Asserts whether a given file (not a directory) exists.
+# Terminates the script with RC=1 if the assertion fails.
+#
+# Usage:
+#   assert_file "/path/to/file"
+#   assert_file "/path/to/file" "Interchange file does not exist"
+#
+# Globals:
+#   None
+# Arguments:
+#   $1: Path to file
+#   $2: (optional) Custom assertion failure message
+# Outputs:
+#   Outputs a message to STDERR if the assertion fails
+# Returns:
+#   0 on success, exits with RC=1 on failure
+#######################################################################################################################
+function assert_file()
+{
+    local -r path="${1:-}"
+    local -r message="${2:-File does not exist: "$path"}"
+
+    if [[ ! -f "$path" ]]; then
+        log_error "${message}"
+        exit 1
+    fi
+}
+
+#######################################################################################################################
+# Asserts whether a given string is not empty.
+# Terminates the script with RC=1 if the assertion fails.
+#
+# Usage:
+#   assert_not_empty "$value_to_check"
+#   assert_not_empty "$value_to_check" "No value set"
+#
+# Globals:
+#   None
+# Arguments:
+#   $1: Value to check
+#   $2: (optional) Custom assertion failure message
+# Outputs:
+#   Outputs a message to STDERR if the assertion fails
+# Returns:
+#   0 on success, exits with RC=1 on failure
+#######################################################################################################################
+function assert_not_empty()
+{
+    local -r value="${1:-}"
+    local -r message="${2:-Value not set}"
+
+    if [[ -z "$value" ]]; then
+        log_error "${message}"
+        exit 1
+    fi
+}
+
+#######################################################################################################################
+# Asserts that all characters in the given value are numeric.
+# Terminates the script with RC=1 if the assertion fails.
+#
+# Usage:
+#   assert_digit "$value_to_check"
+#   assert_digit "$value_to_check" "Offset contains non-digit characters"
+#
+# Globals:
+#   None
+# Arguments:
+#   $1: Value to check
+#   $2: (optional) Custom assertion failure message
+# Outputs:
+#   Outputs a message to STDERR if the assertion fails
+# Returns:
+#   0 on success, exits with RC=1 on failure
+#######################################################################################################################
+function assert_digit()
+{
+    local -r value="${1:-}"
+    local -r message="${2:-The value does not consist entirely of digits: "${value}"}"
+
+    if [[ ! "$value" =~ ^[0-9]+$ ]]; then
+        log_error "${message}"
+        exit 1
+    fi
+}

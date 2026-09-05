@@ -1,0 +1,14 @@
+# Builds
+/dist/
+
+# External dependencies
+/lib/bashunit
+/.bashunit
+
+# Temporary stuff
+*~
+
+# Local Configuration
+.vscode/
+.idea/
+.DS_Store

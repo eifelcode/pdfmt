@@ -1,0 +1,35 @@
+function command_extract_odd()
+{
+    if (( $# < 2 )); then
+        cat <<TEXT
+Extract all odd-numbered pages
+
+Usage:
+  pdfmt extract odd <input file> <output file>
+
+Examples:
+  pdfmt extract odd input.pdf output.pdf
+
+TEXT
+        return 0
+    fi
+
+    # Load
+    # -----------------------------------------------------------------------------------------------------------------
+    local -r input_file="${1:-}"
+    local -r output_file="${2:-}"
+
+
+    # Validate
+    # -----------------------------------------------------------------------------------------------------------------
+    assert_file "${input_file}"
+
+
+    # Handle
+    # -----------------------------------------------------------------------------------------------------------------
+    local -r num_pages="$(_pdf_get_num_pages "${input_file}")"
+    local -r keep_pages=$(seq 1 2 "${num_pages}" | tr '\n' ' ')
+
+    read -ra pages_array <<< "$keep_pages"
+    pdftk "${input_file}" cat "${pages_array[@]}" output "${output_file}"
+}
