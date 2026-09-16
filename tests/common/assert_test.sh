@@ -39,6 +39,18 @@ function test_common_assert_is_file()
 }
 
 # /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_common_assert_is_not_file()
+{
+    local exit_code=0
+
+    _assert_is_not_file "${ROOT_DIR}/tests/_data/unknown-file" || exit_code=$?
+    assert_same "0" "${exit_code}"
+
+    _assert_is_not_file "${ROOT_DIR}/tests/_data/pages.pdf" || exit_code=$?
+    assert_same "1" "${exit_code}"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function test_common_assert_is_not_empty()
 {
     local exit_code=0
