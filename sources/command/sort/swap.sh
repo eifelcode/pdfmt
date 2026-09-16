@@ -26,9 +26,9 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _assert_file "${input_file}"
-    _assert_digit "${page_a}"
-    _assert_digit "${page_b}"
+    _assert_is_file "${input_file}"
+    _assert_is_digit "${page_a}"
+    _assert_is_digit "${page_b}"
 
 
     # Handle
