@@ -25,7 +25,7 @@ TEXT
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
     for input_file in "${input_files[@]}"; do
-        _assert_is_file "$input_file"
+        _assert_is_file "$input_file" || return $?
     done
 
 

@@ -24,8 +24,8 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _assert_is_file "${input_frontside_file}"
-    _assert_is_file "${input_backside_file}"
+    _assert_is_file "${input_frontside_file}" || return $?
+    _assert_is_file "${input_backside_file}" || return $?
 
 
     # Handle
