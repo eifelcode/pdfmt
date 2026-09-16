@@ -24,6 +24,7 @@ TEXT
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
     _assert_is_file "${input_file}" || return $?
+    _assert_is_not_file "${output_file}" || return $?
 
 
     # Handle

@@ -29,6 +29,7 @@ TEXT
     _assert_is_file "${input_file}" || return $?
     _assert_is_digit "${page_a}" || return $?
     _assert_is_digit "${page_b}" || return $?
+    _assert_is_not_file "${output_file}" || return $?
 
 
     # Handle

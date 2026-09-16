@@ -23,6 +23,7 @@ TEXT
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
     _assert_is_file "${input_file}" || return $?
+    _assert_is_not_file "${output_file}" || return $?
 
     local -r num_pages="$(_pdf_get_num_pages "${input_file}")"
     if (( num_pages < 2 )); then
