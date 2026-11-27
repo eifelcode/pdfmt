@@ -61,7 +61,7 @@ build:
 	echo "#!/usr/bin/env bash" > "$(TARGET)"
 	echo "readonly VERSION=\"$(VERSION)\"" >> "$(TARGET)"
 	# The files are sorted alphabetically; `main` is called last, so the order doesn't really matter.
-	find "$(SOURCE_DIR)" -type f -name "*.sh" -print0 | sort -z | xargs -0 cat >> "$(TARGET)"
+	find "$(SOURCE_DIR)" -type f -name "*.sh" -print0 | LC_ALL=C sort -z | xargs -0 cat >> "$(TARGET)"
 	# here comes the main call
 	echo 'main "$$@"' >> "$(TARGET)"
 
