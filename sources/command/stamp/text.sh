@@ -23,7 +23,7 @@ TEXT
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
     local -r please_check="Please check ~/.config/pdfmt/stamp_text.conf"
-    _assert_is_not_empty "${STAMP_TEXT_FONT_FILE}" "No font file configured. $STAMP_TEXT_FONT_FILE ${please_check}" || return $?
+    _assert_is_not_empty "${STAMP_TEXT_FONT_FILE}" "No font file configured. ${please_check}" || return $?
     _assert_is_not_empty "${STAMP_TEXT_FONT_COLOR}" "No font color configured. ${please_check}" || return $?
     _assert_is_file "${STAMP_TEXT_FONT_FILE}" "Configured font file not found: '${STAMP_TEXT_FONT_FILE}'. ${please_check}" || return $?
     _assert_is_digit "${STAMP_TEXT_FONT_SIZE}" "Configured font size is invalid: '${STAMP_TEXT_FONT_SIZE}'. ${please_check}" || return $?
