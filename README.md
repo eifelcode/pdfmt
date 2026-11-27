@@ -300,13 +300,15 @@ This makes workflows useful for anything you find yourself doing repeatedly.
 
 If you don't want to write workflows from scratch, check out the official [pdfmt-workflows](https://github.com/eifelcode/pdfmt-workflows) repository for ready-to-use community scripts.
 
+Workflows are ordinary shell scripts that run with your permissions, so take a look at a script before you run it.
+
 To install a pre-defined workflow, download the script into your local workflows directory and make it executable:
 
 ```bash
 WORKFLOW_NAME=scan-duplex  #< Name of the workflow to install
 
 # Download and install workflow
-curl -sSL https://raw.githubusercontent.com/eifelcode/pdfmt-workflows/main/workflows/$WORKFLOW_NAME -o ~/.local/share/pdfmt/workflows/$WORKFLOW_NAME
+curl -fsSL https://raw.githubusercontent.com/eifelcode/pdfmt-workflows/main/workflows/$WORKFLOW_NAME -o ~/.local/share/pdfmt/workflows/$WORKFLOW_NAME
 chmod +x ~/.local/share/pdfmt/workflows/$WORKFLOW_NAME
 ```
 
