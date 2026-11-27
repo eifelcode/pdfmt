@@ -43,9 +43,11 @@ TEXT
     # Handle
     # -----------------------------------------------------------------------------------------------------------------
     # Skip OCR if the PDF already contains extractable text.
-    # Extract text stream and test if at least one alphanumeric character exists,
+    # Extract text stream and test if at least one alphanumeric character exists.
+    # The output file is still created (as a copy), so callers can rely on it existing.
     if pdftotext -enc UTF-8 "${input_file}" - 2>/dev/null | grep -q '[[:alnum:]]'; then
-        return 0
+        cp -- "${input_file}" "${output_file}"
+        return $?
     fi
 
     # build options
