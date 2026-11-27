@@ -65,5 +65,5 @@ function _command_scan_execute()
         return 1
     fi
 
-    convert "$temp_dir"/*.png -compress jpeg -quality 85% -page "$SCAN_PAPER_FORMAT" "$output_file"
+    _imagemagick_convert "$temp_dir"/*.png -compress jpeg -quality 85% -page "$SCAN_PAPER_FORMAT" "$output_file"
 }

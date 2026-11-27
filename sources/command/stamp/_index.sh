@@ -1,8 +1,7 @@
 function command_stamp()
 {
     # Check dependencies for 'scan' command
-    _assert_is_installed convert || return $?   # Part of ImageMagick
-    _assert_is_installed identify || return $?  # Part of ImageMagick
+    _imagemagick_assert_installed || return $?
 
     local -r command="${1:-}"
     [[ -n "${command}" ]] && shift

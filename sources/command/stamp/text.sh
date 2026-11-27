@@ -43,13 +43,13 @@ TEXT
     FILES_TO_CLEANUP+=("$stamp_file")
 
     # read dimensions with 72 DPI and scale up to 600 DPI (fastest solution)
-    IFS=x read -r width72 height72 < <(identify -format '%wx%h\n' "${input_file}[0]")
+    IFS=x read -r width72 height72 < <(_imagemagick_identify -format '%wx%h\n' "${input_file}[0]")
 
     local -r width=$(awk "BEGIN {print int(${width72} * 600 / 72 + 0.5)}")
     local -r height=$(awk "BEGIN {print int(${height72} * 600 / 72 + 0.5)}")
 
     # create the stamp
-    convert -density 600 -size "${width}x${height}" xc:transparent \
+    _imagemagick_convert -density 600 -size "${width}x${height}" xc:transparent \
       -font "${STAMP_TEXT_FONT_FILE}" \
       -pointsize "${STAMP_TEXT_FONT_SIZE}" \
       -fill "#444444" -gravity NorthEast -annotate +356+364 "${text}" \
