@@ -59,6 +59,17 @@ function test_workflow_assert_valid_name()
 
     _workflow_assert_valid_name "../scan-duplex" || exit_code=$?
     assert_same "1" "${exit_code}"
+
+    local name
+    for name in "." ".." ".hidden" "" "a/b" "/abs"; do
+        exit_code=0
+        _workflow_assert_valid_name "${name}" 2>/dev/null || exit_code=$?
+        assert_same "1" "${exit_code}" "name: '${name}'"
+    done
+
+    exit_code=0
+    _workflow_assert_valid_name "my.workflow_1" || exit_code=$?
+    assert_same "0" "${exit_code}"
 }
 
 # /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -93,6 +104,16 @@ function test_workflow_find_all()
 
     # no match for "nonexistent"
     result=$(_workflow_find_all "nonexistent") || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_same "" "${result}"
+
+    # directories are executable, but are no workflows
+    mkdir -p "$TEST_DIR/workflows/somedir"
+    result=$(_workflow_find_all "somedir") || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_same "" "${result}"
+
+    result=$(_workflow_find_all "..") || exit_code=$?
     assert_same "0" "${exit_code}"
     assert_same "" "${result}"
 }
