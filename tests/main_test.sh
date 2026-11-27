@@ -122,3 +122,31 @@ function test_command_main()
     assert_same "1" "${exit_code}"
     assert_same "ERROR: Unknown command 'foobar'" "${output}"
 }
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_main_signal_stops_script_and_cleans_up()
+{
+    local signal
+    local expected_code
+
+    for signal in INT TERM; do
+        expected_code=130
+        [[ "${signal}" == "TERM" ]] && expected_code=143
+
+        local marker="${TMPDIR:-/tmp}/pdfmt_signal_test_$$_${signal}"
+        touch "${marker}"
+
+        local exit_code=0
+        local output
+        output="$(bash -c '
+            for f in "$1"/sources/common/*.sh "$1"/sources/main.sh; do source "$f"; done
+            # shellcheck disable=SC2317
+            command_version() { FILES_TO_CLEANUP+=("$2"); kill -s "$1" $$; echo "continued"; }
+            main version "$2" "$3"
+        ' _ "${ROOT_DIR}" "${signal}" "${marker}" 2>&1)" || exit_code=$?
+
+        assert_same "${expected_code}" "${exit_code}"
+        assert_not_contains "continued" "${output}"
+        assert_file_not_exists "${marker}"
+    done
+}
