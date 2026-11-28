@@ -155,23 +155,53 @@ function test_command_annotation_remove_qpdf_error_is_reported()
 }
 
 # /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-function test_command_annotation_remove_unreadable_mktemp_file()
+function test_command_annotation_remove_json_file_readable_for_confined_qpdf()
 {
     local exit_code=0
     local output_file="cleaned.pdf"
-    local -r real_mktemp="$(command -v mktemp)"
+    local -r real_qpdf="$(command -v qpdf)"
+    local -r log_file="${TEST_DIR}/qpdf-json-file.log"
 
-    # mktemp that creates write-only files (qpdf must not depend on the permissions mktemp chooses)
+    # qpdf wrapper that behaves like a qpdf confined by AppArmor (Ubuntu 26.04): files that are not readable for
+    # "others" (mode 600, the default of mktemp) can not be opened, even by their owner.
     mkdir -p "${TEST_DIR}/bin"
-    cat > "${TEST_DIR}/bin/mktemp" <<EOF2
+    cat > "${TEST_DIR}/bin/qpdf" <<EOF2
 #!/bin/bash
-file="\$("${real_mktemp}" "\$@")" || exit \$?
-chmod 200 "\${file}"
-echo "\${file}"
+for argument in "\$@"; do
+    if [[ "\${argument}" == --update-from-json=* ]]; then
+        json_file="\${argument#--update-from-json=}"
+        # record the permissions of the file and its directory
+        { ls -ld "\${json_file}"; ls -ld "\$(dirname "\${json_file}")"; } > "${log_file}"
+        permissions="\$(ls -l "\${json_file}" | cut -c1-10)"
+        if [[ "\${permissions:7:1}" != "r" ]]; then
+            echo "qpdf: open \${json_file}: Permission denied" >&2
+            exit 2
+        fi
+    fi
+done
+exec "${real_qpdf}" "\$@"
 EOF2
-    chmod +x "${TEST_DIR}/bin/mktemp"
+    chmod +x "${TEST_DIR}/bin/qpdf"
 
     PATH="${TEST_DIR}/bin:${PATH}" command_annotation_remove "${ROOT_DIR}/tests/_data/annotations.pdf" "all" "${output_file}" || exit_code=$?
     assert_same "0" "${exit_code}"
     assert_file_exists "${output_file}"
+
+    # the file is world-readable, but its directory is private (only the owner has access)
+    local -a listing=()
+    mapfile -t listing < "${log_file}"
+    assert_matches '^-rw-r--r--' "${listing[0]}"
+    assert_matches '^drwx------' "${listing[1]}"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_annotation_remove_removes_temporary_files()
+{
+    local exit_code=0
+    local -r tmp_dir="${TEST_DIR}/tmp"
+    mkdir -p "${tmp_dir}"
+
+    TMPDIR="${tmp_dir}" command_annotation_remove "${ROOT_DIR}/tests/_data/annotations.pdf" "all" "cleaned.pdf" || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_same "" "$(ls -A "${tmp_dir}")"
 }

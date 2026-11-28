@@ -128,17 +128,23 @@ TEXT
         return 1
     }
 
-    # Create temporary JSON file
-    local json_tmp
-    json_tmp="$(mktemp)" || {
-        _log_error "Failed to create temporary file."
+    # Create the temporary JSON file in a private directory.
+    #
+    # qpdf can not be told to read the JSON from STDIN (it seeks), so a file is needed. On systems where qpdf is
+    # confined by AppArmor (e.g. Ubuntu 26.04) it is not allowed to open files that only the owner may read (mode 600,
+    # which is what mktemp creates): "qpdf: open /tmp/tmp.XXXX: Permission denied". Therefore the file gets mode 644;
+    # the 700 directory around it keeps other users out. Both are removed on exit (see _cleanup) and after use.
+    local json_dir
+    json_dir="$(mktemp -d)" || {
+        _log_error "Failed to create temporary directory."
         return 1
     }
+    FILES_TO_CLEANUP+=("${json_dir}")
 
-    # Do not rely on the permissions mktemp gives the file: qpdf has to be able to read it.
-    chmod 600 "${json_tmp}" || {
-        rm -f "${json_tmp}"
-        _log_error "Failed to set permissions of temporary file."
+    local -r json_tmp="${json_dir}/annotations.json"
+    ( umask 022; : > "${json_tmp}" ) || {
+        rm -rf "${json_dir}"
+        _log_error "Failed to create temporary file."
         return 1
     }
 
@@ -194,7 +200,7 @@ TEXT
                 end
             )
         ' > "${json_tmp}"; then
-        rm -f "${json_tmp}"
+        rm -rf "${json_dir}"
         _log_error "Failed to filter annotations from qpdf JSON."
         return 1
     fi
@@ -207,11 +213,11 @@ TEXT
     if (( qpdf_exit_code != 0 && qpdf_exit_code != 3 )); then
         local json_tmp_info
         json_tmp_info="$(ls -ld "${json_tmp}" 2>&1)" || true
-        rm -f "${json_tmp}"
+        rm -rf "${json_dir}"
         _log_error "Failed to write output PDF (qpdf exit code ${qpdf_exit_code}): ${qpdf_messages} [${json_tmp_info}]"
         return 1
     fi
 
-    rm -f "${json_tmp}"
+    rm -rf "${json_dir}"
     return 0
 }
