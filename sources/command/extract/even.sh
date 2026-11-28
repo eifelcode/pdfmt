@@ -1,7 +1,7 @@
 function command_extract_even()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Extract all even-numbered pages
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt extract even input.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load

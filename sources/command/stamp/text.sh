@@ -1,7 +1,7 @@
 function command_stamp_text()
 {
     if (( $# < 3 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Add a custom text stamp to a PDF
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt stamp text input.pdf "invoice paid on 20.07.2027" output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

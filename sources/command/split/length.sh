@@ -1,7 +1,7 @@
 function command_split_length()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Split a PDF into chunks of a fixed number of pages
 
 Usage:
@@ -12,7 +12,7 @@ Examples:
   pdfmt split length input.pdf 2 prefix_
 
 TEXT
-        return 0
+        return $?
     fi
 
 

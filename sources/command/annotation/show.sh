@@ -1,7 +1,7 @@
 function command_annotation_show()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Show annotation details into plain text format
 
 Usage:
@@ -25,7 +25,7 @@ Examples:
   pdfmt annotation show input.pdf text,link
 
 TEXT
-        return 0
+        return $?
     fi
 
 

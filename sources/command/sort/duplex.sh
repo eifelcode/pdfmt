@@ -1,7 +1,7 @@
 function command_sort_duplex()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Reorder a single PDF containing consecutive front and back scans
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt sort duplex input.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

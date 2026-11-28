@@ -1,7 +1,7 @@
 function command_sort_swap()
 {
     if (( $# < 4 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Swap two specific pages within a PDF
 
 Usage:
@@ -12,7 +12,7 @@ Example:
   (Swaps page 7 with page 2; all other pages stay in place)
 
 TEXT
-        return 0
+        return $?
     fi
 
 

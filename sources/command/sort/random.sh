@@ -1,7 +1,7 @@
 function command_sort_random()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Shuffle the pages of a PDF into a random order
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt sort random input.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

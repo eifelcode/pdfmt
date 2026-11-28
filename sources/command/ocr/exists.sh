@@ -1,7 +1,7 @@
 function command_ocr_exists()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Check if a PDF document contains an OCR/text layer
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt ocr exists document.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

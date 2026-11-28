@@ -1,7 +1,7 @@
 function command_ocr_add()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Add an OCR text layer to a PDF document
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt ocr add input.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

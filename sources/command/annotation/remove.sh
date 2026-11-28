@@ -1,7 +1,7 @@
 function command_annotation_remove()
 {
     if (( $# < 3 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Remove annotations from a PDF document
 
 Usage:
@@ -26,7 +26,7 @@ Examples:
   pdfmt annotation remove input.pdf text,link,underline output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load

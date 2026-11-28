@@ -1,7 +1,7 @@
 function command_extract_odd()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Extract all odd-numbered pages
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt extract odd input.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load

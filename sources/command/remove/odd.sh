@@ -1,7 +1,7 @@
 function command_remove_odd()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Remove all odd-numbered pages
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt remove odd input.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

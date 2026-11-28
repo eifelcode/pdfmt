@@ -1,7 +1,7 @@
 function command_merge_duplex()
 {
     if (( $# < 3 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Interleave two PDFs (front/back scans) into one duplex document
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt merge duplex frontside.pdf backside.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

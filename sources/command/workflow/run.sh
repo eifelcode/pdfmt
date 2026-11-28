@@ -1,7 +1,7 @@
 function command_workflow_run()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Runs a workflow script
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt workflow run echo document.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load

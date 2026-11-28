@@ -1,7 +1,7 @@
 function command_ocr_show()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Display the extracted OCR text layer of a PDF document
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt ocr show document.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

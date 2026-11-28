@@ -1,7 +1,7 @@
 function command_merge_insert()
 {
     if (( $# < 4 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Insert a PDF into another document at a specific page
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt merge insert book.pdf 2 toc.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load

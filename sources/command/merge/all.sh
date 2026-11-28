@@ -1,7 +1,7 @@
 function command_merge_all()
 {
     if (( $# < 3 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Combine PDFs into a single document
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt merge all cover.pdf toc.pdf chapter1.pdf chapter2.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load

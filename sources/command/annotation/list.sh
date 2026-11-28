@@ -1,7 +1,7 @@
 function command_annotation_list()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 List all annotation types present in a PDF document
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt annotation list input.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 

@@ -1,7 +1,7 @@
 function command_split_all()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Split a PDF into separate files, one for each page
 
 Usage:
@@ -12,7 +12,7 @@ Examples:
   pdfmt split all input.pdf prefix_
 
 TEXT
-        return 0
+        return $?
     fi
 
 
