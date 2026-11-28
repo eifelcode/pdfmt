@@ -59,6 +59,9 @@ help:
 build:
 	echo "Building $(TARGET) version $(VERSION)..."
 
+	# print the versions of all dependencies (hint for compatibility problems between local and CI)
+	bash tools/print-dependency-versions.sh
+
 	mkdir -p "$(DIST_DIR)"
 	echo "#!/usr/bin/env bash" > "$(TARGET)"
 	echo "readonly VERSION=\"$(VERSION)\"" >> "$(TARGET)"
