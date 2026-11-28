@@ -70,6 +70,12 @@ jobs:
           echo "Path:"
           command -v bash
 
+      # TEMPORARY: diagnoses "qpdf: open /tmp/tmp.XXXX: Permission denied" on the runner; remove when solved
+      - name: Diagnose qpdf file access
+        shell: bash
+        continue-on-error: true
+        run: tools/diagnose-qpdf-access.sh
+
       - name: Build and test
         shell: bash
         run: make test
