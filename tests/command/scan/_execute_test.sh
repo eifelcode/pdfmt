@@ -31,9 +31,9 @@ done
 
 if [[ -n "\${output_file}" ]]; then
     output_file="\${output_file//%03d/001}"
-    cp "${ROOT_DIR}/tests/_data/scan.png" "\${output_file}"
+    cp "\${SCAN_TEST_IMAGE:-${ROOT_DIR}/tests/_data/scan.png}" "\${output_file}"
 else
-    cat "${ROOT_DIR}/tests/_data/scan.png"
+    cat "\${SCAN_TEST_IMAGE:-${ROOT_DIR}/tests/_data/scan.png}"
 fi
 EOF
 
@@ -87,4 +87,24 @@ EOF
         "${output_file}" || exit_code=$?
 
     assert_same "1" "${exit_code}"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_scan_execute_page_size_independent_of_png_resolution()
+{
+    local exit_code=0
+    local -r output_file="${TEST_HOME}/scan.pdf"
+
+    # A4 scan at 300 DPI; scanners store the resolution in pixels per centimeter (118.11 px/cm = 300 DPI)
+    export SCAN_TEST_IMAGE="${TEST_HOME}/scan-300dpi.png"
+    _imagemagick_convert -size 2480x3508 xc:white -units PixelsPerCentimeter -density 118.11 "${SCAN_TEST_IMAGE}"
+
+    _command_scan_execute \
+        flatbed \
+        "${output_file}" || exit_code=$?
+    unset SCAN_TEST_IMAGE
+
+    assert_same "0" "${exit_code}"
+    assert_file_exists "${output_file}"
+    assert_contains "595 x 842 pts (A4)" "$(pdfinfo "${output_file}" | grep "Page size")"
 }

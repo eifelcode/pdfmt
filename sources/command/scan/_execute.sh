@@ -65,5 +65,13 @@ function _command_scan_execute()
         return 1
     fi
 
-    _imagemagick_convert "$temp_dir"/*.png -compress jpeg -quality 85% -page "$SCAN_PAPER_FORMAT" "$output_file"
+    # The resolution of the scanned PNGs (stored by scanimage, e.g. in pixels per centimeter) is not trusted: the
+    # density is set explicitly so that the PDF pages get the correct size.
+    _imagemagick_convert "$temp_dir"/*.png \
+        -units PixelsPerInch \
+        -density 72 \
+        -compress jpeg \
+        -quality 90% \
+        -page "$SCAN_PAPER_FORMAT" \
+        "$output_file"
 }
