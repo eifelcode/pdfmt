@@ -192,11 +192,14 @@ TEXT
         return 1
     fi
 
-    # Rebuild PDF from modified JSON
-    if ! qpdf --update-from-json="${json_tmp}" \
-        "${input_file}" "${output_file}" 2>/dev/null; then
+    # Rebuild PDF from modified JSON.
+    # qpdf exits with 3 if it finished with warnings only; the output file has been written in that case.
+    local qpdf_messages
+    local qpdf_exit_code=0
+    qpdf_messages="$(qpdf --update-from-json="${json_tmp}" "${input_file}" "${output_file}" 2>&1)" || qpdf_exit_code=$?
+    if (( qpdf_exit_code != 0 && qpdf_exit_code != 3 )); then
         rm -f "${json_tmp}"
-        _log_error "Failed to write output PDF."
+        _log_error "Failed to write output PDF (qpdf exit code ${qpdf_exit_code}): ${qpdf_messages}"
         return 1
     fi
 

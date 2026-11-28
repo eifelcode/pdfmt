@@ -56,6 +56,7 @@ function main()
     else
         print_version "imagemagick" convert  "convert -version"                      's/^Version: //p'
     fi
+    print_version "ghostscript" gs         "gs --version"
     print_version "pdftotext"    pdftotext   "pdftotext -v"
     print_version "scanimage"    scanimage   "scanimage --version"
     print_version "ocrmypdf"     ocrmypdf    "ocrmypdf --version"
