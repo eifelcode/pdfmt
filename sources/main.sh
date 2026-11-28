@@ -2,7 +2,11 @@ function main()
 {
     set -euo pipefail
 
-    trap _cleanup EXIT INT TERM
+    # Clean up on every exit. For signals, exit explicitly (128 + signal number) so the script
+    # does not continue running after the trap handler returned; the EXIT trap then does the cleanup.
+    trap _cleanup EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
 
     # Check core dependencies for PDF manipulation
     _assert_is_installed awk
@@ -13,7 +17,6 @@ function main()
     _assert_is_installed grep
     _assert_is_installed head
     _assert_is_installed mktemp
-    _assert_is_installed pdftk
     _assert_is_installed sed
     _assert_is_installed seq
     _assert_is_installed sort

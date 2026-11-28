@@ -1,7 +1,7 @@
 function command_split_length()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Split a PDF into chunks of a fixed number of pages
 
 Usage:
@@ -12,7 +12,7 @@ Examples:
   pdfmt split length input.pdf 2 prefix_
 
 TEXT
-        return 0
+        return $?
     fi
 
 
@@ -62,7 +62,7 @@ TEXT
         local temp_file="${temp_dir}/$((i + 1)).pdf"
 
         _log_info "Creating ${output_file} with page ${start}-${end} ..."
-        pdftk "${input_file}" cat "${start}-${end}" output "${temp_file}"
+        _pdf_select_pages "${input_file}" "${temp_file}" "${start}-${end}"
     done
 
 

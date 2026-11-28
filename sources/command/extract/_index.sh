@@ -1,5 +1,7 @@
 function command_extract()
 {
+    _qpdf_assert_supported_version || return $?
+
     local -r command="${1:-}"
     [[ -n "${command}" ]] && shift
 

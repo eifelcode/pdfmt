@@ -1,7 +1,7 @@
 function command_annotation_show()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Show annotation details into plain text format
 
 Usage:
@@ -25,7 +25,7 @@ Examples:
   pdfmt annotation show input.pdf text,link
 
 TEXT
-        return 0
+        return $?
     fi
 
 
@@ -37,7 +37,7 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _assert_is_installed qpdf || return $?
+    _qpdf_assert_supported_version || return $?
     _assert_is_installed jq || return $?
     _assert_is_file "${input_file}" || return $?
 
@@ -104,7 +104,7 @@ TEXT
     # Extract plain text representation
     local extracted_text
 
-    if ! extracted_text=$(qpdf --json "${input_file}" |
+    if ! extracted_text=$(_qpdf_json "${input_file}" |
         jq -r --argjson targets "${targets_json}" '
             # Map: qpdf-Page-Object -> Page number
             (

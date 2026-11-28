@@ -1,7 +1,7 @@
 function command_annotation_remove()
 {
     if (( $# < 3 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Remove annotations from a PDF document
 
 Usage:
@@ -26,7 +26,7 @@ Examples:
   pdfmt annotation remove input.pdf text,link,underline output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load
@@ -38,7 +38,7 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _assert_is_installed qpdf || return $?
+    _qpdf_assert_supported_version || return $?
     _assert_is_installed jq || return $?
     _assert_is_file "${input_file}" || return $?
     _assert_is_not_file "${output_file}" || return $?
@@ -128,16 +128,29 @@ TEXT
         return 1
     }
 
-    # Create temporary JSON file
-    local json_tmp
-    json_tmp="$(mktemp)" || {
+    # Create the temporary JSON file in a private directory.
+    #
+    # qpdf can not be told to read the JSON from STDIN (it seeks), so a file is needed. On systems where qpdf is
+    # confined by AppArmor (e.g. Ubuntu 26.04) it is not allowed to open files that only the owner may read (mode 600,
+    # which is what mktemp creates): "qpdf: open /tmp/tmp.XXXX: Permission denied". Therefore the file gets mode 644;
+    # the 700 directory around it keeps other users out. Both are removed on exit (see _cleanup) and after use.
+    local json_dir
+    json_dir="$(mktemp -d)" || {
+        _log_error "Failed to create temporary directory."
+        return 1
+    }
+    FILES_TO_CLEANUP+=("${json_dir}")
+
+    local -r json_tmp="${json_dir}/annotations.json"
+    ( umask 022; : > "${json_tmp}" ) || {
+        rm -rf "${json_dir}"
         _log_error "Failed to create temporary file."
         return 1
     }
 
     # Remove annotation references from /Annots arrays.
     # Keep all other PDF objects intact.
-    if ! qpdf --json "${input_file}" |
+    if ! _qpdf_json "${input_file}" |
         jq --argjson targets "${targets_json}" '
             # Find matching annotation object IDs.
             ([
@@ -187,19 +200,24 @@ TEXT
                 end
             )
         ' > "${json_tmp}"; then
-        rm -f "${json_tmp}"
+        rm -rf "${json_dir}"
         _log_error "Failed to filter annotations from qpdf JSON."
         return 1
     fi
 
-    # Rebuild PDF from modified JSON
-    if ! qpdf --update-from-json="${json_tmp}" \
-        "${input_file}" "${output_file}" 2>/dev/null; then
-        rm -f "${json_tmp}"
-        _log_error "Failed to write output PDF."
+    # Rebuild PDF from modified JSON.
+    # qpdf exits with 3 if it finished with warnings only; the output file has been written in that case.
+    local qpdf_messages
+    local qpdf_exit_code=0
+    qpdf_messages="$(qpdf --update-from-json="${json_tmp}" "${input_file}" "${output_file}" 2>&1)" || qpdf_exit_code=$?
+    if (( qpdf_exit_code != 0 && qpdf_exit_code != 3 )); then
+        local json_tmp_info
+        json_tmp_info="$(ls -ld "${json_tmp}" 2>&1)" || true
+        rm -rf "${json_dir}"
+        _log_error "Failed to write output PDF (qpdf exit code ${qpdf_exit_code}): ${qpdf_messages} [${json_tmp_info}]"
         return 1
     fi
 
-    rm -f "${json_tmp}"
+    rm -rf "${json_dir}"
     return 0
 }

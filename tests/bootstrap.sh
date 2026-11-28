@@ -16,6 +16,8 @@ function bootstrap()
     # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
     source "$ROOT_DIR/sources/common/config.sh"
     # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
+    source "$ROOT_DIR/sources/common/imagemagick.sh"
+    # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
     source "$ROOT_DIR/sources/common/log.sh"
     # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
     source "$ROOT_DIR/sources/common/paper.sh"
@@ -23,6 +25,10 @@ function bootstrap()
     source "$ROOT_DIR/sources/common/pdf.sh"
     # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
     source "$ROOT_DIR/sources/common/platform.sh"
+    # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
+    source "$ROOT_DIR/sources/common/qpdf.sh"
+    # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
+    source "$ROOT_DIR/sources/common/usage.sh"
     # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
     source "$ROOT_DIR/sources/common/workflow.sh"
 

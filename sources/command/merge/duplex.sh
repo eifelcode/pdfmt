@@ -1,7 +1,7 @@
 function command_merge_duplex()
 {
     if (( $# < 3 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Interleave two PDFs (front/back scans) into one duplex document
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt merge duplex frontside.pdf backside.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 
@@ -38,5 +38,8 @@ TEXT
         return 1
     fi
 
-    pdftk A="${input_frontside_file}" B="${input_backside_file}" shuffle A Bend-1 output "${output_file}"
+    # The backsides are scanned in reverse order: front 1, back last, front 2, back last-1, ...
+    _pdf_assemble --collate "${output_file}" \
+        "${input_frontside_file}" "1-z" \
+        "${input_backside_file}" "z-1"
 }

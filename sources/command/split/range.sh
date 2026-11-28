@@ -1,7 +1,7 @@
 function command_split_range()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Split a PDF into multiple files based on page ranges
 
 Usage:
@@ -12,7 +12,7 @@ Examples:
   pdfmt split range input.pdf 1-4,6,7-8 1-3,5 prefix_
 
 TEXT
-        return 0
+        return $?
     fi
 
 
@@ -102,7 +102,7 @@ TEXT
         local temp_file="${temp_dir}/${count}.pdf"
 
         _log_info "Creating ${output_file} with pages ${range_string} ..."
-        pdftk "${input_file}" cat "${pages_array[@]}" output "${temp_file}"
+        _pdf_select_pages "${input_file}" "${temp_file}" "${pages_array[@]}"
 
         ((count++))
     done

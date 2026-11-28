@@ -1,7 +1,7 @@
 function command_workflow_info()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Shows information about a workflow
 
 Usage:
@@ -11,7 +11,7 @@ Example:
   pdfmt workflow info scan-duplex
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load

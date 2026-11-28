@@ -29,7 +29,6 @@ jobs:
             sudo apt-get install -y \
               shellcheck \
               ocrmypdf \
-              pdftk \
               qpdf \
               jq \
               poppler-utils \
@@ -41,7 +40,6 @@ jobs:
               bash \
               shellcheck \
               ocrmypdf \
-              pdftk-java \
               poppler \
               qpdf \
               jq \
@@ -51,8 +49,15 @@ jobs:
 
       - name: Install bashunit
         shell: bash
+        env:
+          # Keep in sync with BASHUNIT_VERSION in the Makefile
+          BASHUNIT_VERSION: "0.53.0"
+          # Fail if the checksum of the downloaded binary can not be verified
+          BASHUNIT_VERIFY_CHECKSUM: "true"
         run: |
-          curl -s https://bashunit.com/install.sh | bash
+          # Download the installer first (and fail on HTTP errors) instead of piping it blindly into bash
+          curl -fsSL --retry 3 -o "${RUNNER_TEMP}/install-bashunit.sh" https://bashunit.com/install.sh
+          bash "${RUNNER_TEMP}/install-bashunit.sh" "${BASHUNIT_VERSION}"
 
       - name: Show Bash version
         shell: bash

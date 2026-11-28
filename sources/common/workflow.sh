@@ -18,7 +18,7 @@ function _workflow_assert_valid_name()
     local -r workflow_name="${1:-}"
 
     _assert_matches_regex \
-        '^[^/]+$' \
+        '^[^/.][^/]*$' \
         "${workflow_name}" \
         "Invalid workflow name: ${workflow_name}" || return $?
 }
@@ -107,7 +107,7 @@ function _workflow_find_all()
     while IFS= read -r path; do
         workflow_file="${path}/${workflow_name}"
 
-        [[ -x "${workflow_file}" ]] || continue
+        [[ -f "${workflow_file}" && -x "${workflow_file}" ]] || continue
 
         printf '%s\n' "${workflow_file}"
     done < <(_workflow_get_paths)

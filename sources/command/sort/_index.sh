@@ -1,5 +1,7 @@
 function command_sort()
 {
+    _qpdf_assert_supported_version || return $?
+
     local -r command="${1:-}"
     [[ -n "${command}" ]] && shift
 

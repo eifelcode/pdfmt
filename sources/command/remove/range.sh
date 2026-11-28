@@ -1,7 +1,7 @@
 function command_remove_range()
 {
     if (( $# < 3 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Remove a specific range of pages (e.g., 1-5)
 
 Usage:
@@ -12,7 +12,7 @@ Examples:
   (This would remove pages 1 to 4, page 5, and pages 7 to 12)
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load
@@ -58,5 +58,5 @@ TEXT
         return 1
     fi
 
-    pdftk "${input_file}" cat "${keep_array[@]}" output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${keep_array[@]}"
 }

@@ -32,6 +32,79 @@ EOF
 }
 
 # /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_config_get_value_missing_key_or_file()
+{
+    local config_file="${HOME}/.config/pdfmt/test.conf"
+    echo "test.value=1" > "${config_file}"
+
+    local exit_code=0
+    local output
+    output="$(set -euo pipefail; _config_get_value "${config_file}" "test.unknown")" || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_same "" "${output}"
+
+    exit_code=0
+    output="$(set -euo pipefail; _config_get_value "${config_file}" "test.unknown" "fallback")" || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_same "fallback" "${output}"
+
+    exit_code=0
+    output="$(set -euo pipefail; _config_get_value "${HOME}/does-not-exist.conf" "test.value" "fallback")" || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_same "fallback" "${output}"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_config_get_value_exact_key_match()
+{
+    local config_file="${HOME}/.config/pdfmt/test.conf"
+
+    cat > "${config_file}" <<EOF
+# test.value=commented
+testXvalue=regex-match
+test.value.other=prefix-match
+test.value=first
+test.value=last
+EOF
+
+    assert_same "last" "$(_config_get_value "${config_file}" "test.value")"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_config_get_value_quotes_and_whitespace()
+{
+    local config_file="${HOME}/.config/pdfmt/test.conf"
+
+    cat > "${config_file}" <<EOF
+test.spaces =   padded value
+test.double="/path/with space/font.ttf"
+test.single='single quoted'
+test.inner=it's "fine"
+test.equals=a=b=c
+test.crlf=windows$(printf '\r')
+test.empty=
+EOF
+
+    assert_same "padded value" "$(_config_get_value "${config_file}" "test.spaces")"
+    assert_same "/path/with space/font.ttf" "$(_config_get_value "${config_file}" "test.double")"
+    assert_same "single quoted" "$(_config_get_value "${config_file}" "test.single")"
+    assert_same "it's \"fine\"" "$(_config_get_value "${config_file}" "test.inner")"
+    assert_same "a=b=c" "$(_config_get_value "${config_file}" "test.equals")"
+    assert_same "windows" "$(_config_get_value "${config_file}" "test.crlf")"
+    assert_same "" "$(_config_get_value "${config_file}" "test.empty")"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_config_load_with_incomplete_config()
+{
+    echo "scan.device=only-device" > "${HOME}/.config/pdfmt/scan.conf"
+
+    local exit_code=0
+    (set -euo pipefail; _config_load_scan) || exit_code=$?
+    assert_same "0" "${exit_code}"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function test_config_load_scan()
 {
     cat > "${HOME}/.config/pdfmt/scan.conf" <<EOF

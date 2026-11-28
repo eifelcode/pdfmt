@@ -102,3 +102,106 @@ function test_command_annotation_remove_input_file_not_existing()
     assert_same "1" "${exit_code}"
     assert_not_same "${output_file}" "$(printf '%s\n' *)"
 }
+
+# Creates a qpdf wrapper that behaves like the real one, but ends "--update-from-json" with the given exit code.
+function create_qpdf_wrapper()
+{
+    local -r exit_code="${1}"
+    local -r message="${2}"
+    local -r real_qpdf="$(command -v qpdf)"
+
+    mkdir -p "${TEST_DIR}/bin"
+    cat > "${TEST_DIR}/bin/qpdf" <<EOF2
+#!/bin/bash
+for argument in "\$@"; do
+    if [[ "\${argument}" == --update-from-json=* ]]; then
+        "${real_qpdf}" "\$@"
+        echo "${message}" >&2
+        exit ${exit_code}
+    fi
+done
+exec "${real_qpdf}" "\$@"
+EOF2
+    chmod +x "${TEST_DIR}/bin/qpdf"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_annotation_remove_qpdf_warnings_are_no_error()
+{
+    local exit_code=0
+    local output_file="cleaned.pdf"
+
+    # qpdf exit code 3: finished with warnings, output was written
+    create_qpdf_wrapper 3 "WARNING: something minor"
+
+    PATH="${TEST_DIR}/bin:${PATH}" command_annotation_remove "${ROOT_DIR}/tests/_data/annotations.pdf" "all" "${output_file}" || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_file_exists "${output_file}"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_annotation_remove_qpdf_error_is_reported()
+{
+    local exit_code=0
+    local output
+    local output_file="cleaned.pdf"
+
+    create_qpdf_wrapper 2 "qpdf: something went wrong"
+
+    output="$(PATH="${TEST_DIR}/bin:${PATH}" command_annotation_remove "${ROOT_DIR}/tests/_data/annotations.pdf" "all" "${output_file}" 2>&1)" || exit_code=$?
+    assert_same "1" "${exit_code}"
+    assert_contains "Failed to write output PDF (qpdf exit code 2)" "${output}"
+    assert_contains "qpdf: something went wrong" "${output}"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_annotation_remove_json_file_readable_for_confined_qpdf()
+{
+    local exit_code=0
+    local output_file="cleaned.pdf"
+    local -r real_qpdf="$(command -v qpdf)"
+    local -r log_file="${TEST_DIR}/qpdf-json-file.log"
+
+    # qpdf wrapper that behaves like a qpdf confined by AppArmor (Ubuntu 26.04): files that are not readable for
+    # "others" (mode 600, the default of mktemp) can not be opened, even by their owner.
+    mkdir -p "${TEST_DIR}/bin"
+    cat > "${TEST_DIR}/bin/qpdf" <<EOF2
+#!/bin/bash
+for argument in "\$@"; do
+    if [[ "\${argument}" == --update-from-json=* ]]; then
+        json_file="\${argument#--update-from-json=}"
+        # record the permissions of the file and its directory
+        { ls -ld "\${json_file}"; ls -ld "\$(dirname "\${json_file}")"; } > "${log_file}"
+        permissions="\$(ls -l "\${json_file}" | cut -c1-10)"
+        if [[ "\${permissions:7:1}" != "r" ]]; then
+            echo "qpdf: open \${json_file}: Permission denied" >&2
+            exit 2
+        fi
+    fi
+done
+exec "${real_qpdf}" "\$@"
+EOF2
+    chmod +x "${TEST_DIR}/bin/qpdf"
+
+    PATH="${TEST_DIR}/bin:${PATH}" command_annotation_remove "${ROOT_DIR}/tests/_data/annotations.pdf" "all" "${output_file}" || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_file_exists "${output_file}"
+
+    # the file is world-readable, but its directory is private (only the owner has access)
+    local -a listing=()
+    mapfile -t listing < "${log_file}"
+    assert_matches '^-rw-r--r--' "${listing[0]}"
+    assert_matches '^drwx------' "${listing[1]}"
+}
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_annotation_remove_removes_temporary_files()
+{
+    local exit_code=0
+    local -r tmp_dir="${TEST_DIR}/tmp"
+    mkdir -p "${tmp_dir}"
+
+    TMPDIR="${tmp_dir}" command_annotation_remove "${ROOT_DIR}/tests/_data/annotations.pdf" "all" "cleaned.pdf" || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_same "" "$(ls -A "${tmp_dir}")"
+}

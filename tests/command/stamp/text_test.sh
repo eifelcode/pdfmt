@@ -99,3 +99,25 @@ function test_command_stamp_text_input_file_not_existing()
 
     assert_same "1" "${exit_code}"
 }
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_stamp_text_no_font_file_configured()
+{
+    local exit_code=0
+    local output
+
+    cat > "${HOME}/.config/pdfmt/stamp_text.conf" <<EOF2
+stamp.text.font.file=
+stamp.text.font.size=22
+stamp.text.font.color="#DC143C"
+EOF2
+
+    output="$(command_stamp_text \
+        "${ROOT_DIR}/tests/_data/pages.pdf" \
+        "TEST STAMP" \
+        "${TEST_HOME}/stamped.pdf" 2>&1)" || exit_code=$?
+
+    assert_same "1" "${exit_code}"
+    assert_same "ERROR: No font file configured. Please check ~/.config/pdfmt/stamp_text.conf" "${output}"
+    assert_file_not_exists "${TEST_HOME}/stamped.pdf"
+}

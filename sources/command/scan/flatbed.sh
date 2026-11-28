@@ -1,7 +1,7 @@
 function command_scan_flatbed()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $(( $# - 1 )) <<TEXT
 Scan documents from flatbed scanner into a new PDF
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt scan flatbed output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
     _command_scan_execute "$@"

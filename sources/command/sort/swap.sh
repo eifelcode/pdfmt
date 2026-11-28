@@ -1,7 +1,7 @@
 function command_sort_swap()
 {
     if (( $# < 4 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Swap two specific pages within a PDF
 
 Usage:
@@ -12,7 +12,7 @@ Example:
   (Swaps page 7 with page 2; all other pages stay in place)
 
 TEXT
-        return 0
+        return $?
     fi
 
 
@@ -52,8 +52,8 @@ TEXT
         fi
     done
 
-    local -r final_pages="$(echo "$new_order" | xargs)"
+    local -a final_pages=()
+    read -ra final_pages <<< "${new_order}"
 
-    # shellcheck disable=SC2086  # final_pages: "pdftk ... cat" requires page numbers as a space separated list
-    pdftk "${input_file}" cat $final_pages output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${final_pages[@]}"
 }

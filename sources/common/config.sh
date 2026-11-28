@@ -1,8 +1,53 @@
+#######################################################################################################################
+# Reads the value of a key from a simple key=value config file.
+#
+# - Only exact key matches count (the key is not treated as a regex).
+# - If a key occurs multiple times, the last one wins.
+# - Surrounding whitespace and one pair of surrounding quotes (" or ') are removed; inner quotes are kept.
+# - A missing file or key is not an error: the (optional) default is printed instead.
+#
+# Usage:
+#   _config_get_value "$file" "scan.device"
+#   _config_get_value "$file" "scan.resolution" "300"
+#
+# Arguments:
+#   $1: Config file
+#   $2: Key
+#   $3: (optional) Default value if the file or key does not exist
+# Outputs:
+#   The value
+# Returns:
+#   Always 0
+#######################################################################################################################
 function _config_get_value()
 {
     local -r file="${1}"
     local -r key="${2}"
-    [[ -f "$file" ]] && grep "^${key}=" "$file" | cut -d'=' -f2- | tr -d '"' | tr -d "'" | xargs
+    local value="${3:-}"
+
+    if [[ -f "${file}" ]]; then
+        local line line_key line_value
+        while IFS= read -r line || [[ -n "${line}" ]]; do
+            line="${line%$'\r'}"
+            [[ "${line}" == *=* ]] || continue
+
+            line_key="${line%%=*}"
+            line_key="${line_key#"${line_key%%[![:space:]]*}"}"
+            line_key="${line_key%"${line_key##*[![:space:]]}"}"
+            [[ "${line_key}" == "${key}" ]] || continue
+
+            line_value="${line#*=}"
+            line_value="${line_value#"${line_value%%[![:space:]]*}"}"
+            line_value="${line_value%"${line_value##*[![:space:]]}"}"
+
+            if [[ "${line_value}" =~ ^\"(.*)\"$ || "${line_value}" =~ ^\'(.*)\'$ ]]; then
+                line_value="${BASH_REMATCH[1]}"
+            fi
+            value="${line_value}"
+        done < "${file}"
+    fi
+
+    printf '%s\n' "${value}"
 }
 
 function _config_load_scan()

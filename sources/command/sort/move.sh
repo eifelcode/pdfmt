@@ -1,7 +1,7 @@
 function command_sort_move()
 {
     if (( $# < 4 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Move specific pages to a new position within the PDF
 
 Usage:
@@ -12,7 +12,7 @@ Examples:
   (Moves pages 2, 3, 5, 7, and 8 to the very beginning)
 
 TEXT
-        return 0
+        return $?
     fi
 
 
@@ -72,5 +72,5 @@ TEXT
         )
     fi
 
-    pdftk "${input_file}" cat "${final_order[@]}" output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${final_order[@]}"
 }

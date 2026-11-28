@@ -1,7 +1,7 @@
 function command_extract_range()
 {
     if (( $# < 3 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Extract a specific range of pages (e.g., 1-5) into a new PDF
 
 Usage:
@@ -12,7 +12,7 @@ Examples:
   (This will create a PDF containing ONLY these pages)
 
 TEXT
-        return 0
+        return $?
     fi
 
     # Load
@@ -45,5 +45,5 @@ TEXT
         return 1
     fi
 
-    pdftk "${input_file}" cat "${pages_array[@]}" output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${pages_array[@]}"
 }

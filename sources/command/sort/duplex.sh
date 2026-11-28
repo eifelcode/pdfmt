@@ -1,7 +1,7 @@
 function command_sort_duplex()
 {
     if (( $# < 2 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 Reorder a single PDF containing consecutive front and back scans
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt sort duplex input.pdf output.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 
@@ -38,17 +38,9 @@ TEXT
     # Halve the number of pages
     local -r half=$((num_pages / 2))
 
-    # Temp files
-    local -r odd_pages="$(_create_temp_file .pdf)"
-    local -r even_pages="$(_create_temp_file .pdf)"
-    FILES_TO_CLEANUP+=("$odd_pages")
-    FILES_TO_CLEANUP+=("$even_pages")
-
     # First half: Front pages (1 to half)
-    # Second half: Back pages (half+1 to pages), but in reverse order
-    pdftk "$input_file" cat "1-$half" output "$odd_pages"
-    pdftk "$input_file" cat "$((half + 1))-$num_pages" output "$even_pages"
-
-    # The backsides are scanned upside down, so Bend-1
-    pdftk A="$odd_pages" B="$even_pages" shuffle A Bend-1 output "$output_file"
+    # Second half: Back pages (half+1 to pages), scanned upside down and therefore in reverse order
+    _pdf_assemble --collate "${output_file}" \
+        "${input_file}" "1-${half}" \
+        "${input_file}" "${num_pages}-$((half + 1))"
 }

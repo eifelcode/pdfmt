@@ -12,6 +12,8 @@ APP_NAME = pdfmt
 TARGET = $(DIST_DIR)/$(APP_NAME)
 TARGET_TARGZ = $(DIST_DIR)/$(APP_NAME)-$(VERSION).tar.gz
 PREFIX ?= /usr/local
+# bashunit version used for the tests (keep in sync with .github/workflows/snapshot.yaml)
+BASHUNIT_VERSION = 0.53.0
 BIN_DIR = $(PREFIX)/bin
 
 BASH_COMPLETION_DIRS := \
@@ -57,11 +59,14 @@ help:
 build:
 	echo "Building $(TARGET) version $(VERSION)..."
 
+	# print the versions of all dependencies (hint for compatibility problems between local and CI)
+	bash tools/print-dependency-versions.sh
+
 	mkdir -p "$(DIST_DIR)"
 	echo "#!/usr/bin/env bash" > "$(TARGET)"
 	echo "readonly VERSION=\"$(VERSION)\"" >> "$(TARGET)"
 	# The files are sorted alphabetically; `main` is called last, so the order doesn't really matter.
-	find "$(SOURCE_DIR)" -type f -name "*.sh" -print0 | sort -z | xargs -0 cat >> "$(TARGET)"
+	find "$(SOURCE_DIR)" -type f -name "*.sh" -print0 | LC_ALL=C sort -z | xargs -0 cat >> "$(TARGET)"
 	# here comes the main call
 	echo 'main "$$@"' >> "$(TARGET)"
 
@@ -89,7 +94,7 @@ test: lint build
 	if [ ! -f lib/bashunit ]; then \
 		echo "ERROR: bashunit not installed in lib/bashunit"; \
 		echo "To install bashunit, run:"; \
-		echo "  curl -s https://bashunit.com/install.sh | bash"; \
+		echo "  curl -fsSL https://bashunit.com/install.sh | bash -s -- $(BASHUNIT_VERSION)"; \
 		exit 1; \
 	fi
 	lib/bashunit "$(TEST_DIR)"

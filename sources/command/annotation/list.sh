@@ -1,7 +1,7 @@
 function command_annotation_list()
 {
     if (( $# < 1 )); then
-        cat <<TEXT
+        _usage $# <<TEXT
 List all annotation types present in a PDF document
 
 Usage:
@@ -11,7 +11,7 @@ Examples:
   pdfmt annotation list input.pdf
 
 TEXT
-        return 0
+        return $?
     fi
 
 
@@ -22,7 +22,7 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _assert_is_installed qpdf || return $?
+    _qpdf_assert_supported_version || return $?
     _assert_is_installed jq || return $?
     _assert_is_file "${input_file}" || return $?
 
@@ -30,7 +30,7 @@ TEXT
     # Handle
     # -----------------------------------------------------------------------------------------------------------------
     local annots
-    annots=$(qpdf --json "${input_file}" | jq -r '
+    annots=$(_qpdf_json "${input_file}" | jq -r '
         ..
         | objects
         | select(."/Type"? == "/Annot")

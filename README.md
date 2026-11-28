@@ -300,13 +300,15 @@ This makes workflows useful for anything you find yourself doing repeatedly.
 
 If you don't want to write workflows from scratch, check out the official [pdfmt-workflows](https://github.com/eifelcode/pdfmt-workflows) repository for ready-to-use community scripts.
 
+Workflows are ordinary shell scripts that run with your permissions, so take a look at a script before you run it.
+
 To install a pre-defined workflow, download the script into your local workflows directory and make it executable:
 
 ```bash
 WORKFLOW_NAME=scan-duplex  #< Name of the workflow to install
 
 # Download and install workflow
-curl -sSL https://raw.githubusercontent.com/eifelcode/pdfmt-workflows/main/workflows/$WORKFLOW_NAME -o ~/.local/share/pdfmt/workflows/$WORKFLOW_NAME
+curl -fsSL https://raw.githubusercontent.com/eifelcode/pdfmt-workflows/main/workflows/$WORKFLOW_NAME -o ~/.local/share/pdfmt/workflows/$WORKFLOW_NAME
 chmod +x ~/.local/share/pdfmt/workflows/$WORKFLOW_NAME
 ```
 
@@ -407,12 +409,11 @@ The required runtime tools are:
 | Program                                                       | Linux         | macOS           | Used for                                        |
 |---------------------------------------------------------------|---------------|-----------------|-------------------------------------------------|
 | [Bash](https://www.gnu.org/software/bash/) >= 4.3             | `bash`        | `bash`          | Running `pdfmt`                                 |
-| [pdftk](https://www.pdflabs.com/tools/pdftk-the-pdf-toolkit/) | `pdftk`       | `pdftk-java`    | PDF manipulation                                |
 | [ImageMagick](https://imagemagick.org/)                       | `imagemagick` | `imagemagick`   | Image/PDF operations                            |
 | [SANE](https://sane-project.org/)                             | `sane-utils`  | `sane-backends` | Scanning                                        |
 | [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF)              | `ocrmypdf`    | `ocrmypdf`      | OCR operations                                  |
-| [QPDF](https://qpdf.sourceforge.io/)                          | `qpdf`        | `qpdf`          | Content-preserving transformations on PDF files |
-| [jq](https://jqlang.org/)                                     | `js`          | `jq`            | Command-line JSON processor                     |
+| [QPDF](https://qpdf.sourceforge.io/) >= 11                    | `qpdf`        | `qpdf`          | PDF page operations and annotations             |
+| [jq](https://jqlang.org/)                                     | `jq`          | `jq`            | Command-line JSON processor                     |
 
 Not every command requires every dependency. For example, SANE is only needed for the `scan` command and OCRmyPDF is only needed for `ocr add`.
 
@@ -421,7 +422,7 @@ Not every command requires every dependency. For example, SANE is only needed fo
 On Debian/Ubuntu:
 
 ```bash
-sudo apt install bash pdftk imagemagick sane-utils jq qpdf
+sudo apt install bash imagemagick sane-utils jq qpdf
 ```
 
 Other Linux distributions may use different package names.
@@ -431,7 +432,7 @@ Other Linux distributions may use different package names.
 Using Homebrew:
 
 ```bash
-brew install bash pdftk-java imagemagick sane-backends jq qpdf
+brew install bash imagemagick sane-backends jq qpdf
 ```
 
 macOS ships with Bash 3.2, which is too old for `pdfmt`. Make sure a newer Bash version is available.
