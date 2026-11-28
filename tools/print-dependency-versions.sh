@@ -48,6 +48,7 @@ function main()
     print_version "OS"           uname       "uname -sr"
     print_version "bash"         bash        "bash --version"
     print_version "make"         make        "make --version"
+    print_version "mktemp"       mktemp      "mktemp --version 2>/dev/null"    # BSD mktemp has no version
     print_version "pdftk"        pdftk       "pdftk --version"
     print_version "qpdf"         qpdf        "qpdf --version"
     print_version "jq"           jq          "jq --version"

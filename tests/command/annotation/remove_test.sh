@@ -153,3 +153,25 @@ function test_command_annotation_remove_qpdf_error_is_reported()
     assert_contains "Failed to write output PDF (qpdf exit code 2)" "${output}"
     assert_contains "qpdf: something went wrong" "${output}"
 }
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_annotation_remove_unreadable_mktemp_file()
+{
+    local exit_code=0
+    local output_file="cleaned.pdf"
+    local -r real_mktemp="$(command -v mktemp)"
+
+    # mktemp that creates write-only files (qpdf must not depend on the permissions mktemp chooses)
+    mkdir -p "${TEST_DIR}/bin"
+    cat > "${TEST_DIR}/bin/mktemp" <<EOF2
+#!/bin/bash
+file="\$("${real_mktemp}" "\$@")" || exit \$?
+chmod 200 "\${file}"
+echo "\${file}"
+EOF2
+    chmod +x "${TEST_DIR}/bin/mktemp"
+
+    PATH="${TEST_DIR}/bin:${PATH}" command_annotation_remove "${ROOT_DIR}/tests/_data/annotations.pdf" "all" "${output_file}" || exit_code=$?
+    assert_same "0" "${exit_code}"
+    assert_file_exists "${output_file}"
+}

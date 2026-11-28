@@ -135,6 +135,13 @@ TEXT
         return 1
     }
 
+    # Do not rely on the permissions mktemp gives the file: qpdf has to be able to read it.
+    chmod 600 "${json_tmp}" || {
+        rm -f "${json_tmp}"
+        _log_error "Failed to set permissions of temporary file."
+        return 1
+    }
+
     # Remove annotation references from /Annots arrays.
     # Keep all other PDF objects intact.
     if ! _qpdf_json "${input_file}" |
@@ -198,8 +205,10 @@ TEXT
     local qpdf_exit_code=0
     qpdf_messages="$(qpdf --update-from-json="${json_tmp}" "${input_file}" "${output_file}" 2>&1)" || qpdf_exit_code=$?
     if (( qpdf_exit_code != 0 && qpdf_exit_code != 3 )); then
+        local json_tmp_info
+        json_tmp_info="$(ls -ld "${json_tmp}" 2>&1)" || true
         rm -f "${json_tmp}"
-        _log_error "Failed to write output PDF (qpdf exit code ${qpdf_exit_code}): ${qpdf_messages}"
+        _log_error "Failed to write output PDF (qpdf exit code ${qpdf_exit_code}): ${qpdf_messages} [${json_tmp_info}]"
         return 1
     fi
 
