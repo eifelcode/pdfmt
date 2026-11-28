@@ -61,3 +61,18 @@ function test_command_annotation_list_input_file_not_existing()
     assert_same "1" "${exit_code}"
     assert_same "" "$(echo "${output}" | tr -d '[:space:]')"
 }
+
+# /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function test_command_annotation_list_qpdf_too_old()
+{
+    local exit_code=0
+    local output
+
+    mkdir -p "${TEST_DIR}/bin"
+    printf '#!/bin/bash\necho "qpdf version 10.6.3"\n' > "${TEST_DIR}/bin/qpdf"
+    chmod +x "${TEST_DIR}/bin/qpdf"
+
+    output="$(PATH="${TEST_DIR}/bin:${PATH}" command_annotation_list "${ROOT_DIR}/tests/_data/annotations.pdf" 2>&1)" || exit_code=$?
+    assert_same "1" "${exit_code}"
+    assert_same "ERROR: qpdf 11 or newer is required for this command (found 10.6.3)" "${output}"
+}

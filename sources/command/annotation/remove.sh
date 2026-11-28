@@ -38,7 +38,7 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _assert_is_installed qpdf || return $?
+    _qpdf_assert_json_support || return $?
     _assert_is_installed jq || return $?
     _assert_is_file "${input_file}" || return $?
     _assert_is_not_file "${output_file}" || return $?
@@ -137,7 +137,7 @@ TEXT
 
     # Remove annotation references from /Annots arrays.
     # Keep all other PDF objects intact.
-    if ! qpdf --json "${input_file}" |
+    if ! _qpdf_json "${input_file}" |
         jq --argjson targets "${targets_json}" '
             # Find matching annotation object IDs.
             ([

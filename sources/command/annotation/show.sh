@@ -37,7 +37,7 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _assert_is_installed qpdf || return $?
+    _qpdf_assert_json_support || return $?
     _assert_is_installed jq || return $?
     _assert_is_file "${input_file}" || return $?
 
@@ -104,7 +104,7 @@ TEXT
     # Extract plain text representation
     local extracted_text
 
-    if ! extracted_text=$(qpdf --json "${input_file}" |
+    if ! extracted_text=$(_qpdf_json "${input_file}" |
         jq -r --argjson targets "${targets_json}" '
             # Map: qpdf-Page-Object -> Page number
             (

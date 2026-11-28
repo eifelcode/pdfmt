@@ -22,7 +22,7 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _assert_is_installed qpdf || return $?
+    _qpdf_assert_json_support || return $?
     _assert_is_installed jq || return $?
     _assert_is_file "${input_file}" || return $?
 
@@ -30,7 +30,7 @@ TEXT
     # Handle
     # -----------------------------------------------------------------------------------------------------------------
     local annots
-    annots=$(qpdf --json "${input_file}" | jq -r '
+    annots=$(_qpdf_json "${input_file}" | jq -r '
         ..
         | objects
         | select(."/Type"? == "/Annot")

@@ -413,8 +413,8 @@ The required runtime tools are:
 | [ImageMagick](https://imagemagick.org/)                       | `imagemagick` | `imagemagick`   | Image/PDF operations                            |
 | [SANE](https://sane-project.org/)                             | `sane-utils`  | `sane-backends` | Scanning                                        |
 | [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF)              | `ocrmypdf`    | `ocrmypdf`      | OCR operations                                  |
-| [QPDF](https://qpdf.sourceforge.io/)                          | `qpdf`        | `qpdf`          | Content-preserving transformations on PDF files |
-| [jq](https://jqlang.org/)                                     | `js`          | `jq`            | Command-line JSON processor                     |
+| [QPDF](https://qpdf.sourceforge.io/) >= 11                    | `qpdf`        | `qpdf`          | Content-preserving transformations on PDF files |
+| [jq](https://jqlang.org/)                                     | `jq`          | `jq`            | Command-line JSON processor                     |
 
 Not every command requires every dependency. For example, SANE is only needed for the `scan` command and OCRmyPDF is only needed for `ocr add`.
 

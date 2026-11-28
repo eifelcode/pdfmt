@@ -26,6 +26,8 @@ function bootstrap()
     # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
     source "$ROOT_DIR/sources/common/platform.sh"
     # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
+    source "$ROOT_DIR/sources/common/qpdf.sh"
+    # shellcheck disable=SC1091     # ROOT_DIR is provided by the bootstrap.
     source "$ROOT_DIR/sources/common/workflow.sh"
 
 }
