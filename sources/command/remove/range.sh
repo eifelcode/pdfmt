@@ -58,5 +58,5 @@ TEXT
         return 1
     fi
 
-    pdftk "${input_file}" cat "${keep_array[@]}" output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${keep_array[@]}"
 }

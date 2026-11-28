@@ -1,6 +1,6 @@
 function command_extract()
 {
-    _assert_is_installed pdftk || return $?
+    _qpdf_assert_supported_version || return $?
 
     local -r command="${1:-}"
     [[ -n "${command}" ]] && shift

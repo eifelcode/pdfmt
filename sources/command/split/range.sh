@@ -102,7 +102,7 @@ TEXT
         local temp_file="${temp_dir}/${count}.pdf"
 
         _log_info "Creating ${output_file} with pages ${range_string} ..."
-        pdftk "${input_file}" cat "${pages_array[@]}" output "${temp_file}"
+        _pdf_select_pages "${input_file}" "${temp_file}" "${pages_array[@]}"
 
         ((count++))
     done

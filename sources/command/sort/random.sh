@@ -33,5 +33,5 @@ TEXT
     local -r random_pages=$(seq 1 "$num_pages" | awk 'BEGIN { srand(); } { print rand() "\t" $0 }' | sort -n | cut -f2- | tr '\n' ' ')
 
     read -ra pages_array <<< "$random_pages"
-    pdftk "${input_file}" cat "${pages_array[@]}" output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${pages_array[@]}"
 }

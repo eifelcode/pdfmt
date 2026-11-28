@@ -38,7 +38,7 @@ TEXT
 
     # Validate
     # -----------------------------------------------------------------------------------------------------------------
-    _qpdf_assert_json_support || return $?
+    _qpdf_assert_supported_version || return $?
     _assert_is_installed jq || return $?
     _assert_is_file "${input_file}" || return $?
     _assert_is_not_file "${output_file}" || return $?

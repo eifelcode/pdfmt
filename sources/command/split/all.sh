@@ -46,7 +46,7 @@ TEXT
         local temp_file="${temp_dir}/${i}.pdf"
 
         _log_info "Creating ${output_file} with page ${i} ..."
-        pdftk "${input_file}" cat "${i}" output "${temp_file}"
+        _pdf_select_pages "${input_file}" "${temp_file}" "${i}"
     done
 
 

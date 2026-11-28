@@ -74,5 +74,5 @@ function test_command_annotation_list_qpdf_too_old()
 
     output="$(PATH="${TEST_DIR}/bin:${PATH}" command_annotation_list "${ROOT_DIR}/tests/_data/annotations.pdf" 2>&1)" || exit_code=$?
     assert_same "1" "${exit_code}"
-    assert_same "ERROR: qpdf 11 or newer is required for this command (found 10.6.3)" "${output}"
+    assert_same "ERROR: qpdf 11 or newer is required (found 10.6.3)" "${output}"
 }

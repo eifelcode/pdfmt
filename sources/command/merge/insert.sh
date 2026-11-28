@@ -34,16 +34,20 @@ TEXT
     # -----------------------------------------------------------------------------------------------------------------
     local -r num_pages="$(_pdf_get_num_pages "${input_file}")"
 
-    local range_before=""
-    local range_after=""
+    # The inserted file goes in front of the given page; position 1 or less means in front of the first page, a position
+    # behind the last page appends the file.
+    local -a assemble_args=()
     if (( position <= 1 )); then
-        range_after="A1-end"
+        assemble_args=("${insert_file}" "1-z" "${input_file}" "1-z")
     elif (( position > num_pages )); then
-        range_before="A1-end"
+        assemble_args=("${input_file}" "1-z" "${insert_file}" "1-z")
     else
-        range_before="A1-$((position - 1))"
-        range_after="A${position}-end"
+        assemble_args=(
+            "${input_file}" "1-$((position - 1))"
+            "${insert_file}" "1-z"
+            "${input_file}" "${position}-z"
+        )
     fi
 
-    pdftk A="${input_file}" B="${insert_file}" cat "$range_before" B "$range_after" output "${output_file}"
+    _pdf_assemble "${output_file}" "${assemble_args[@]}"
 }

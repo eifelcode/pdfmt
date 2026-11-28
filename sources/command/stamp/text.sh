@@ -57,5 +57,5 @@ TEXT
       "${stamp_file}"
 
     # stamp
-    pdftk "${input_file}" stamp "${stamp_file}" output "${output_file}"
+    _pdf_overlay "${input_file}" "${stamp_file}" "${output_file}"
 }

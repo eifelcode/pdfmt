@@ -2,7 +2,8 @@
 # with a qpdf update). All JSON handling in pdfmt is written for this version, so it is always requested explicitly.
 readonly QPDF_JSON_VERSION=2
 
-# The explicit JSON version selection ("--json=N") and JSON version 2 are available since qpdf 11.
+# Minimum supported qpdf version. All commands that use qpdf require it (among others, the explicit JSON version
+# selection "--json=N" and JSON version 2 are available since qpdf 11).
 readonly QPDF_MIN_MAJOR_VERSION=11
 
 #######################################################################################################################
@@ -31,17 +32,17 @@ function _qpdf_get_version()
 }
 
 #######################################################################################################################
-# Asserts that qpdf is installed and new enough to provide the JSON format pdfmt relies on.
+# Asserts that qpdf is installed and at least in the minimum supported version (QPDF_MIN_MAJOR_VERSION).
 #
 # Usage:
-#   _qpdf_assert_json_support
+#   _qpdf_assert_supported_version
 #
 # Outputs:
 #   Outputs a message to STDERR if the assertion fails
 # Returns:
 #   0 on success, 1 on failure
 #######################################################################################################################
-function _qpdf_assert_json_support()
+function _qpdf_assert_supported_version()
 {
     _assert_is_installed qpdf || return $?
 
@@ -50,7 +51,7 @@ function _qpdf_assert_json_support()
 
     local -r major="${version%%.*}"
     if (( major < QPDF_MIN_MAJOR_VERSION )); then
-        _log_error "qpdf ${QPDF_MIN_MAJOR_VERSION} or newer is required for this command (found ${version})"
+        _log_error "qpdf ${QPDF_MIN_MAJOR_VERSION} or newer is required (found ${version})"
         return 1
     fi
 }
@@ -71,4 +72,28 @@ function _qpdf_assert_json_support()
 function _qpdf_json()
 {
     qpdf "--json=${QPDF_JSON_VERSION}" "${1}"
+}
+
+#######################################################################################################################
+# Runs qpdf. Exit code 3 of qpdf means "finished with warnings"; the output has been written in that case, so it is
+# not treated as failure (the warnings are still printed by qpdf to STDERR).
+#
+# Usage:
+#   _qpdf_run --empty --pages "input.pdf" 1-3 -- "output.pdf"
+#
+# Arguments:
+#   $@: Arguments passed unchanged to qpdf
+# Returns:
+#   0 if qpdf succeeded (with or without warnings), otherwise the exit code of qpdf
+#######################################################################################################################
+function _qpdf_run()
+{
+    local exit_code=0
+    qpdf "$@" || exit_code=$?
+
+    if (( exit_code == 3 )); then
+        return 0
+    fi
+
+    return "${exit_code}"
 }

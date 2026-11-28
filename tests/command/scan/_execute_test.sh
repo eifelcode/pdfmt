@@ -106,5 +106,5 @@ function test_command_scan_execute_page_size_independent_of_png_resolution()
 
     assert_same "0" "${exit_code}"
     assert_file_exists "${output_file}"
-    assert_contains "595 x 842 pts (A4)" "$(pdfinfo "${output_file}" | grep "Page size")"
+    assert_contains "595 x 842 pts (A4)" "$(pdfinfo "${output_file}" | grep -a "Page size")"
 }

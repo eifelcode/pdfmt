@@ -52,8 +52,8 @@ TEXT
         fi
     done
 
-    local -r final_pages="$(echo "$new_order" | xargs)"
+    local -a final_pages=()
+    read -ra final_pages <<< "${new_order}"
 
-    # shellcheck disable=SC2086  # final_pages: "pdftk ... cat" requires page numbers as a space separated list
-    pdftk "${input_file}" cat $final_pages output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${final_pages[@]}"
 }

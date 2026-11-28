@@ -29,7 +29,6 @@ jobs:
             sudo apt-get install -y \
               shellcheck \
               ocrmypdf \
-              pdftk \
               qpdf \
               jq \
               poppler-utils \
@@ -41,7 +40,6 @@ jobs:
               bash \
               shellcheck \
               ocrmypdf \
-              pdftk-java \
               poppler \
               qpdf \
               jq \

@@ -57,7 +57,15 @@ function main()
             apt-get update -qq
             apt-get install -y -qq \
                 make curl ca-certificates \
-                shellcheck ocrmypdf pdftk qpdf jq poppler-utils sane-utils imagemagick >/dev/null
+                shellcheck ocrmypdf qpdf jq poppler-utils sane-utils imagemagick >/dev/null
+
+            # ImageMagick 6 of older distributions (e.g. Ubuntu 22.04, Linux Mint) forbids reading and writing PDF files
+            # in its policy ("not allowed by the security policy PDF"), which the tests and the scan/stamp commands need.
+            if ! convert -size 10x10 xc:white /tmp/policy-check.pdf 2>/dev/null; then
+                echo "WARNING: the ImageMagick policy blocks PDF, relaxing it for this run"
+                sed -i -E "s/rights=\"none\" pattern=\"(PDF|PS|EPS|XPS)\"/rights=\"read|write\" pattern=\"\1\"/" /etc/ImageMagick-*/policy.xml
+            fi
+            rm -f /tmp/policy-check.pdf
 
             # Like the GitHub runner: a normal user instead of root (root ignores file permissions)
             useradd -m -s /bin/bash runner

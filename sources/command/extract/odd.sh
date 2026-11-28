@@ -32,5 +32,5 @@ TEXT
     local -r keep_pages=$(seq 1 2 "${num_pages}" | tr '\n' ' ')
 
     read -ra pages_array <<< "$keep_pages"
-    pdftk "${input_file}" cat "${pages_array[@]}" output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${pages_array[@]}"
 }

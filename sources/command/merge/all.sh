@@ -32,5 +32,10 @@ TEXT
 
     # Handle
     # -----------------------------------------------------------------------------------------------------------------
-    pdftk "${input_files[@]}" cat output "$output_file"
+    local -a assemble_args=()
+    for input_file in "${input_files[@]}"; do
+        assemble_args+=("${input_file}" "1-z")
+    done
+
+    _pdf_assemble "${output_file}" "${assemble_args[@]}"
 }

@@ -2,7 +2,7 @@ function command_stamp()
 {
     # Check dependencies for 'stamp' command
     _imagemagick_assert_installed || return $?
-    _assert_is_installed pdftk || return $?
+    _qpdf_assert_supported_version || return $?
 
     local -r command="${1:-}"
     [[ -n "${command}" ]] && shift

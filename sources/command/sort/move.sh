@@ -72,5 +72,5 @@ TEXT
         )
     fi
 
-    pdftk "${input_file}" cat "${final_order[@]}" output "${output_file}"
+    _pdf_select_pages "${input_file}" "${output_file}" "${final_order[@]}"
 }

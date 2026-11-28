@@ -29,5 +29,5 @@ TEXT
 
     # Handle
     # -----------------------------------------------------------------------------------------------------------------
-    pdftk "$input_file" cat end-1 output "$output_file"
+    _pdf_select_pages "${input_file}" "${output_file}" "z-1"
 }
