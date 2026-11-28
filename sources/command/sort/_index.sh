@@ -1,5 +1,7 @@
 function command_sort()
 {
+    _assert_is_installed pdftk || return $?
+
     local -r command="${1:-}"
     [[ -n "${command}" ]] && shift
 

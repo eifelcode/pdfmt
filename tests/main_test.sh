@@ -129,6 +129,11 @@ function test_main_signal_stops_script_and_cleans_up()
     local signal
     local expected_code
 
+    if ! command -v perl >/dev/null 2>&1; then
+        bashunit::skip "perl is required to reset the signal dispositions"
+        return
+    fi
+
     for signal in INT TERM; do
         expected_code=130
         [[ "${signal}" == "TERM" ]] && expected_code=143
@@ -138,7 +143,9 @@ function test_main_signal_stops_script_and_cleans_up()
 
         local exit_code=0
         local output
-        output="$(bash -c '
+        # Background jobs (like tests run by bashunit) start with SIGINT/SIGQUIT ignored, and an ignored signal
+        # can not be trapped by the child shell. Reset the signal dispositions via perl before starting bash.
+        output="$(perl -e '$SIG{INT} = "DEFAULT"; $SIG{TERM} = "DEFAULT"; exec @ARGV' bash -c '
             for f in "$1"/sources/common/*.sh "$1"/sources/main.sh; do source "$f"; done
             # shellcheck disable=SC2317
             command_version() { FILES_TO_CLEANUP+=("$2"); kill -s "$1" $$; echo "continued"; }

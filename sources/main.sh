@@ -17,7 +17,6 @@ function main()
     _assert_is_installed grep
     _assert_is_installed head
     _assert_is_installed mktemp
-    _assert_is_installed pdftk
     _assert_is_installed sed
     _assert_is_installed seq
     _assert_is_installed sort

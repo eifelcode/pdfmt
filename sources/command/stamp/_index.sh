@@ -1,7 +1,8 @@
 function command_stamp()
 {
-    # Check dependencies for 'scan' command
+    # Check dependencies for 'stamp' command
     _imagemagick_assert_installed || return $?
+    _assert_is_installed pdftk || return $?
 
     local -r command="${1:-}"
     [[ -n "${command}" ]] && shift
